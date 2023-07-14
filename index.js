@@ -2,14 +2,14 @@ const express = require('express')
 const cors = require('cors')
 const app = express()
 require('dotenv').config()
-const port = process.env.port || 5000
+const port = process.env.PORT || 5000
 
 
 app.use(cors())
 app.use(express.json())
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.watftgx.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -28,7 +28,7 @@ async function run() {
 
     const instructorCollection = client.db("gymAiling").collection("instructors");
     const coursesCollection = client.db("gymAiling").collection("courses");
-    const bookingCollection = client.db("gymAiling").collection("bookings");
+    const bookingCollection = client.db("gymAiling").collection("booking");
 
     app.get('/instructors', async (req, res) => {
       const result = await instructorCollection.find().toArray()
@@ -39,6 +39,26 @@ async function run() {
       const result = await coursesCollection.find().toArray()
       res.send(result)
     })
+
+    app.get('/booking',async(req,res)=>{
+      const email = req.query.email;
+      const query = {email:email}
+      const result = await bookingCollection.find(query).toArray()
+      res.send(result)
+    })
+
+   app.post('/booking',async(req,res)=>{
+    const item = req.body;
+    const result = await bookingCollection.insertOne(item)
+    res.send(result)
+   })
+
+   app.delete('/booking/:id',async(req,res)=>{
+       const id = req.params.id;
+       const query = {_id: new ObjectId(id)}
+       const result = await bookingCollection.deleteOne(query)
+       res.send(result)
+   })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
