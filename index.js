@@ -52,7 +52,7 @@ async function run() {
 
     app.post('/jwt', (req, res) => {
       const user = req.body;
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: '5h' });
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: '12h' });
       res.send({ token })
     })
 
@@ -158,7 +158,7 @@ async function run() {
       res.send(result)
     })
 
-    app.delete('/booking/:id', async (req, res) => {
+    app.delete('/booking/:id',verifyJWT, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
       const result = await bookingCollection.deleteOne(query)
